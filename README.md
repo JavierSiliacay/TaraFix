@@ -1,8 +1,8 @@
-# 🛠️ TaraFix
+# TaraFix
 
-**AutoNear** is a hyperlocal web application designed to help vehicle owners in the Philippines find trusted, verified auto service shops nearby. From mechanics and vulcanizing shops to car washes and oil change centers, AutoNear connects you with the right help, right when you need it.
+**TaraFix** is a premier hyperlocal ecosystem designed to revolutionize how vehicle owners in the Philippines maintain their transport. More than just a directory, TaraFix is a comprehensive bridge connecting motorists with a vetted network of automotive professionals—from expert mechanics and vulcanizing shops to specialized oil change centers and car washes.
 
-![AutoNear Icon](./app/icon.tsx)
+Built to address the lack of reliable, real-time service information, TaraFix empowers users to find immediate help while providing shop owners a digital platform to grow their business through a verified, trust-based system.
 
 <div align="center">
 
@@ -22,16 +22,21 @@
 
 </div>
 
-## 🌟 Key Features
+## The TaraFix Mission
 
-*   **📍 Interactive Map**: Real-time geolocation to find shops near you using Leaflet & OpenStreetMap.
-*   **✅ Verified Network**: Only verified shops with accurate Google Maps data are listed.
-*   **🏢 Shop Registration**: "Join Network" feature allows unlisted shop owners to apply for verification.
-*   **🛡️ Admin Dashboard**: Secure admin panel for reviewing and approving shop requests (Email-based auth).
-*   **📱 Responsive Design**: Fully optimized for mobile and desktop with a premium "Turbo" aesthetic.
-*   **🔍 Smart Search**: Filter by service type (Engine, Brakes, Tires, Electrical) or search by city.
+To provide every Filipino vehicle owner with the peace of mind that expert automotive help is always just a tap away, while professionalizing the local auto-service industry through digital verification and quality standards.
 
-## 🛠️ Tech Stack
+## Key Features
+
+- **Intelligent Hyperlocal Map**: High-precision geolocation (via Leaflet & OpenStreetMap) that displays the nearest available shops based on your live coordinates.
+- **Verified Professional Network**: Every shop undergoes a manual verification process to ensure business legitimacy, accurate location data, and service quality.
+- **Shop Growth Platform**: "Join Network" feature allows brick-and-mortar shop owners to digitize their business, reach local customers, and manage their service requests.
+- **Real-time Service Discovery**: Instant filtering by service category (Engine, Brakes, Tires, Electrical, Detailing) to find the exact specialist you need.
+- **Secure Admin Ecosystem**: A robust back-office for administrators to review business applications, manage shop listings, and maintain system integrity.
+- **Premium Turbo UI**: A state-of-the-art, glassmorphic dark interface optimized for high-speed performance and mobile-first accessibility.
+- **Direct Privacy-First Communication**: Integrated messaging and booking systems designed to respect user privacy while facilitating seamless service coordination.
+
+## Tech Stack
 
 - **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
 - **Library**: [React 19](https://react.dev/)
@@ -44,7 +49,7 @@
 - **Deployment**: [Vercel](https://vercel.com/)
 - **Package Manager**: [PNPM](https://pnpm.io/)
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -56,8 +61,8 @@
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/JavierSiliacay/AutoNear.git
-    cd AutoNear
+    git clone https://github.com/JavierSiliacay/TaraFix.git
+    cd TaraFix
     ```
 
 2.  **Install dependencies:**
@@ -84,13 +89,13 @@
     ```
     Open [http://localhost:3000](http://localhost:3000) to view the app.
 
-## 👥 Admin Access
+## Admin Access
 
 The `/admin` dashboard is restricted to authorized personnel only. To access:
 1.  Navigate to `/login`.
 2.  Sign in with an authorized email address.
 3.  You will be redirected to the Admin Queue to manage shop requests.
 
-## 📄 License
+## License
 
-This project is proprietary and developed for AutoNear.
+This project is proprietary and developed for TaraFix.
