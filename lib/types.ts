@@ -72,6 +72,7 @@ export interface ServiceRequest {
   customer_phone: string
   vehicle_info: string | null
   service_type: string | null
+  service_preference: 'Home Service' | 'On Shop' | null
   message: string | null
   status: 'pending' | 'accepted' | 'on_my_way' | 'arrived' | 'in_progress' | 'completed' | 'cancelled'
   customer_email: string | null

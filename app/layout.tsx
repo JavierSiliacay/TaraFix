@@ -19,6 +19,7 @@ export const viewport: Viewport = {
 }
 
 import { AvatarSync } from "@/components/avatar-sync"
+import { NotificationProvider } from "@/lib/notification-context"
 
 export default function RootLayout({
   children,
@@ -34,8 +35,10 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans antialiased min-h-screen">
-        <AvatarSync />
-        {children}
+        <NotificationProvider>
+          <AvatarSync />
+          {children}
+        </NotificationProvider>
       </body>
     </html>
   )

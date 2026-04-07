@@ -11,11 +11,10 @@ import { SERVICE_TYPES } from '@/lib/types';
 
 
 
-// Dynamically import components to avoid SSR issues
+// Leaflet components are dynamically imported below to avoid SSR issues
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
 const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
 const Marker = dynamic(() => import('react-leaflet').then(mod => mod.Marker), { ssr: false });
-const useMapEvents = (require('react-leaflet').useMapEvents);
 
 function LocationMarker({ position, setPosition, mapCenter, icon }: { 
   position: [number, number], 
@@ -23,7 +22,10 @@ function LocationMarker({ position, setPosition, mapCenter, icon }: {
   mapCenter: [number, number] | null,
   icon: any
 }) {
-  const map = (useMapEvents as any)({
+  // Only import useMapEvents on the client
+  const { useMapEvents } = require('react-leaflet');
+  
+  const map = useMapEvents({
     click(e: any) {
       setPosition([e.latlng.lat, e.latlng.lng]);
     },

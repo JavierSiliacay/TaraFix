@@ -40,9 +40,16 @@ export function ServiceChat({ requestId, recipientName, recipientAvatarUrl, curr
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const supabase = createClient();
 
+    const [notificationAudio, setNotificationAudio] = useState<HTMLAudioElement | null>(null);
+
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
+
+    useEffect(() => {
+        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
+        setNotificationAudio(audio);
+    }, []);
 
     useEffect(() => {
         loadMessages();
@@ -60,7 +67,14 @@ export function ServiceChat({ requestId, recipientName, recipientAvatarUrl, curr
                     filter: `request_id=eq.${requestId}`
                 },
                 (payload) => {
-                    setMessages((prev) => [...prev, payload.new as ChatMessage]);
+                    const newMsg = payload.new as ChatMessage;
+                    setMessages((prev) => [...prev, newMsg]);
+
+                    // Play sound if not from current user
+                    if (newMsg.sender_email !== currentUserEmail) {
+                        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
+                        audio.play().catch(e => console.log('Sound blocked'));
+                    }
                 }
             )
             .subscribe();

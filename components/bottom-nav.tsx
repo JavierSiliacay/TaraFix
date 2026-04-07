@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import { MaterialIcon } from "./material-icon"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
+import { useNotifications } from "@/lib/notification-context"
 
 const navItems = [
   { href: "/", icon: "home_app_logo", label: "Home" },
@@ -17,6 +18,7 @@ export function BottomNav() {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
+  const { totalUnread } = useNotifications()
 
   const handleNav = async (href: string) => {
     if (href === "/") {
@@ -40,9 +42,16 @@ export function BottomNav() {
           <button
             key={item.href}
             onClick={() => handleNav(item.href)}
-            className={`flex flex-col items-center gap-1.5 transition-colors ${isActive ? "text-turbo-orange" : "text-muted-foreground"}`}
+            className={`flex flex-col items-center gap-1.5 transition-colors relative ${isActive ? "text-turbo-orange" : "text-muted-foreground"}`}
           >
-            <MaterialIcon name={item.icon} className="font-bold" />
+            <div className="relative">
+              <MaterialIcon name={item.icon} className="font-bold" />
+              {item.label === "Profile" && totalUnread > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[8px] font-black px-1 min-w-[16px] h-4 rounded-full border-2 border-midnight flex items-center justify-center animate-in zoom-in duration-300">
+                  {totalUnread > 99 ? '99+' : totalUnread}
+                </span>
+              )}
+            </div>
             <span className="text-[10px] font-bold uppercase tracking-tighter">{item.label}</span>
           </button>
         )

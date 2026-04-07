@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache"
 import type { Shop, Mechanic, MechanicRequest, ServiceRequest, Review } from "./types"
 import { strictRatelimit } from "./ratelimit"
 import { headers } from "next/headers"
+import webpush from 'web-push'
 
 export async function getMechanics(options?: {
   city?: string
@@ -161,9 +162,10 @@ export async function submitServiceRequest(formData: FormData) {
   const customerPhone = formData.get("customer_phone") as string
   const vehicleInfo = formData.get("vehicle_info") as string
   const serviceType = formData.get("service_type") as string
+  const servicePreference = formData.get("service_preference") as string
   const message = formData.get("message") as string
 
-  if (!mechanicId || !customerName || !customerPhone) {
+  if (!mechanicId || !customerName || !customerPhone || !servicePreference) {
     return { success: false, error: "Please fill in all required fields." }
   }
 
@@ -178,6 +180,7 @@ export async function submitServiceRequest(formData: FormData) {
     customer_avatar_url: customerAvatarUrl,
     vehicle_info: vehicleInfo || null,
     service_type: serviceType || null,
+    service_preference: servicePreference,
     message: message || null,
   })
 
@@ -405,6 +408,8 @@ export async function cleanupChatImages(requestId: string) {
 
 export async function sendChatMessage(requestId: string, content: string, senderRole: 'admin' | 'customer' | 'mechanic', senderEmail: string, imageUrl?: string | null) {
   const supabase = await createClient()
+  
+  // 1. Save message to DB
   const { error } = await supabase.from("service_request_messages").insert({
     request_id: requestId,
     content,
@@ -416,6 +421,64 @@ export async function sendChatMessage(requestId: string, content: string, sender
   if (error) {
     console.error("Error sending message:", error)
     return { success: false, error: error.message || "Failed to send message." }
+  }
+
+  // 2. Identify Recipient for Push Notification
+  try {
+    const { data: request } = await supabase
+      .from("service_requests")
+      .select("customer_email, mechanic_id, mechanics(email), customer_name, service_name")
+      .eq("id", requestId)
+      .single();
+
+    if (request) {
+      let recipientEmail = '';
+      if (senderRole === 'customer') {
+        // Recipient is the mechanic
+        recipientEmail = (request.mechanics as any)?.email;
+      } else if (senderRole === 'mechanic') {
+        // Recipient is the customer
+        recipientEmail = request.customer_email;
+      }
+
+      if (recipientEmail) {
+        // 3. Fetch recipient's push subscriptions
+        const { data: subs } = await supabase
+          .from("push_subscriptions")
+          .select("subscription")
+          .eq("user_email", recipientEmail);
+
+        if (subs && subs.length > 0) {
+          // 4. Configure web-push
+          webpush.setVapidDetails(
+            process.env.VAPID_SUBJECT || 'mailto:admin@tarafix.com',
+            process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
+            process.env.VAPID_PRIVATE_KEY!
+          );
+
+          const payload = JSON.stringify({
+            title: `Message from ${senderRole === 'mechanic' ? 'Mechanic' : request.customer_name}`,
+            body: content.length > 60 ? content.substring(0, 60) + '...' : content,
+            url: `/profile`
+          });
+
+          // 5. Send pushes in parallel
+          await Promise.allSettled(
+            subs.map(s => 
+              webpush.sendNotification(s.subscription as any, payload)
+                .catch((err: any) => {
+                   if (err.statusCode === 410 || err.statusCode === 404) {
+                     // Subscription expired or gone, should clean up
+                     return supabase.from("push_subscriptions").delete().eq("subscription", s.subscription);
+                   }
+                })
+            )
+          );
+        }
+      }
+    }
+  } catch (err) {
+    console.error("Non-critical push error:", err);
   }
 
   return { success: true }

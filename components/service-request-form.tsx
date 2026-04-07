@@ -166,12 +166,28 @@ export function ServiceRequestForm({ mechanicId, mechanicServices }: ServiceRequ
           </label>
           <select
             name="service_type"
+            required
             className="w-full h-14 bg-background/80 border border-foreground/10 rounded-xl px-4 text-foreground text-sm focus:ring-2 focus:ring-turbo-orange focus:outline-none transition-all appearance-none"
           >
             <option value="">Select a service</option>
             {availableServices.map((svc) => (
               <option key={svc} value={svc}>{svc}</option>
             ))}
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+            Service Preference *
+          </label>
+          <select
+            name="service_preference"
+            required
+            className="w-full h-14 bg-background/80 border border-foreground/10 rounded-xl px-4 text-foreground text-sm focus:ring-2 focus:ring-turbo-orange focus:outline-none transition-all appearance-none"
+          >
+            <option value="">Select preference</option>
+            <option value="Home Service">Home Service</option>
+            <option value="On Shop">On Shop</option>
           </select>
         </div>
 
