@@ -260,10 +260,10 @@ export default function ProfilePage() {
                         </button>
                         <button 
                             onClick={() => setActiveTab('tools')}
-                            className={`flex-1 h-14 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 transition-all ${activeTab === 'tools' ? 'bg-electric-blue text-midnight shadow-lg shadow-electric-blue/40 scale-[1.02]' : 'text-white/40 hover:text-white'}`}
+                            className={`flex-1 h-14 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 transition-all ${activeTab === 'tools' ? 'bg-turbo-orange text-midnight shadow-lg shadow-turbo-orange/40 scale-[1.02]' : 'text-white/40 hover:text-white'}`}
                         >
                             <MaterialIcon name="engineering" className="text-lg" />
-                            Technician Hub
+                            Mechanic Tools
                         </button>
                     </div>
                 )}
