@@ -1,41 +1,31 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { MaterialIcon } from './material-icon';
-import { submitMechanicRequest } from '@/lib/actions';
+import { submitMechanicRequest, checkIfAlreadyMechanic } from '@/lib/actions';
 import { createClient } from '@/lib/supabase/client';
 import dynamic from 'next/dynamic';
 import { SERVICE_TYPES } from '@/lib/types';
-
-
-
-
+import Link from 'next/link';
 
 // Leaflet components are dynamically imported below to avoid SSR issues
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
 const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
 const Marker = dynamic(() => import('react-leaflet').then(mod => mod.Marker), { ssr: false });
 
-function LocationMarker({ position, setPosition, mapCenter, icon }: { 
+function LocationMarker({ position, setPosition, icon }: { 
   position: [number, number], 
   setPosition: (pos: [number, number]) => void,
-  mapCenter: [number, number] | null,
   icon: any
 }) {
   // Only import useMapEvents on the client
   const { useMapEvents } = require('react-leaflet');
   
-  const map = useMapEvents({
+  useMapEvents({
     click(e: any) {
       setPosition([e.latlng.lat, e.latlng.lng]);
     },
   });
-
-  useEffect(() => {
-    if (mapCenter) {
-      map.flyTo(mapCenter, 18, { animate: true, duration: 1.5 });
-    }
-  }, [mapCenter, map]);
 
   return position === null ? null : (
     <Marker position={position} icon={icon} />
@@ -46,10 +36,10 @@ export function MechanicRegistrationForm() {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [alreadyRegistered, setAlreadyRegistered] = useState<'approved' | 'pending' | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [phoneError, setPhoneError] = useState("");
   const [pinPosition, setPinPosition] = useState<[number, number]>([14.5995, 120.9842]); // Default Manila
-  const [mapCenter, setMapCenter] = useState<[number, number] | null>(null);
   const [locating, setLocating] = useState(false);
   
   // Form State to preserve data across steps
@@ -62,19 +52,26 @@ export function MechanicRegistrationForm() {
   const [selectedSpecs, setSelectedSpecs] = useState<string[]>([]);
   const [registrationIcon, setRegistrationIcon] = useState<any>(null);
 
-  // Auto-fill email if user is logged in
+  // Initial Check for Existing Registration
   useEffect(() => {
-    const fetchUserEmail = async () => {
+    const checkStatus = async () => {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (user?.email) {
         setProfile(p => ({ ...p, email: user.email! }));
+        
+        // Final sanity check for existing registration
+        const check = await checkIfAlreadyMechanic(user.email);
+        if (check.registered) {
+          setAlreadyRegistered(check.status as any);
+        }
       }
     };
-    fetchUserEmail();
+    checkStatus();
   }, []);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     // Only load Leaflet on the client
     const L = require('leaflet');
     require('leaflet/dist/leaflet.css');
@@ -153,7 +150,6 @@ export function MechanicRegistrationForm() {
       (pos) => {
         const newPos: [number, number] = [pos.coords.latitude, pos.coords.longitude];
         setPinPosition(newPos);
-        setMapCenter(newPos);
         setLocating(false);
       },
       () => setLocating(false),
@@ -199,6 +195,27 @@ export function MechanicRegistrationForm() {
     setIsSubmitting(false);
   }
 
+  if (alreadyRegistered) {
+    return (
+      <div className="py-12 text-center animate-in zoom-in">
+        <div className="w-20 h-20 bg-turbo-orange/20 rounded-full flex items-center justify-center mx-auto mb-6 text-turbo-orange">
+          <MaterialIcon name="verified_user" className="text-5xl" />
+        </div>
+        <h3 className="text-xl font-black text-foreground uppercase tracking-tighter mb-2 italic">
+          {alreadyRegistered === 'approved' ? "You're Already a Mechanic" : "Application Pending"}
+        </h3>
+        <p className="text-sm text-muted-foreground leading-relaxed mb-8">
+          {alreadyRegistered === 'approved' 
+            ? "Your account is already verified and active in the TaraFix network. You can start accepting jobs from your dashboard."
+            : "We've received your application. Our team is currently reviewing your credentials. Check your email for updates!"}
+        </p>
+        <Link href="/profile" className="inline-flex h-12 px-8 bg-turbo-orange text-midnight font-black uppercase tracking-widest text-[10px] rounded-xl items-center justify-center orange-glow">
+          Go to My Dashboard
+        </Link>
+      </div>
+    );
+  }
+
   if (submitted) {
     return (
       <div className="py-12 text-center animate-in zoom-in">
@@ -214,7 +231,23 @@ export function MechanicRegistrationForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+    <>
+      {/* Floating Notification for Existing Mechanics */}
+      {alreadyRegistered && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[999] w-[calc(100%-40px)] max-w-sm animate-in slide-in-from-top-10 duration-500">
+          <div className="glass p-4 rounded-2xl border border-turbo-orange/30 shadow-[0_20px_50px_rgba(255,95,0,0.2)] flex items-center gap-4">
+            <div className="w-10 h-10 rounded-full bg-turbo-orange/20 flex items-center justify-center text-turbo-orange shrink-0">
+              <MaterialIcon name="info" />
+            </div>
+            <div className="flex flex-col">
+              <p className="text-[10px] font-black text-foreground uppercase tracking-widest">System Alert</p>
+              <p className="text-xs font-bold text-turbo-orange leading-tight">You're already registered as mechanic</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       {step === 1 && (
         <div className="flex flex-col gap-5 animate-in slide-in-from-right-4">
           <div className="space-y-4">
@@ -326,7 +359,6 @@ export function MechanicRegistrationForm() {
                   <LocationMarker 
                     position={pinPosition} 
                     setPosition={setPinPosition} 
-                    mapCenter={mapCenter}
                     icon={registrationIcon}
                   />
                 </MapContainer>
@@ -365,6 +397,7 @@ export function MechanicRegistrationForm() {
           </div>
         </div>
       )}
-    </form>
+      </form>
+    </>
   );
 }

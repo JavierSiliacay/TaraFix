@@ -541,6 +541,31 @@ export async function getMechanicRequests() {
   return data
 }
 
+export async function checkIfAlreadyMechanic(email: string) {
+  const supabase = await createClient()
+  
+  // 1. Check if they already have an approved mechanic profile
+  const { data: mechanic } = await supabase
+    .from("mechanics")
+    .select("id")
+    .eq("email", email)
+    .maybeSingle()
+
+  if (mechanic) return { registered: true, status: 'approved' }
+
+  // 2. Check if they have a pending request
+  const { data: request } = await supabase
+    .from("mechanic_requests")
+    .select("status")
+    .eq("email", email)
+    .eq("status", "pending")
+    .maybeSingle()
+
+  if (request) return { registered: true, status: 'pending' }
+
+  return { registered: false }
+}
+
 export async function submitMechanicRequest(formData: FormData) {
   // Rate Limit Check
   const headerList = await headers()
@@ -563,6 +588,12 @@ export async function submitMechanicRequest(formData: FormData) {
 
   if (!fullName || !contactNumber || !email) {
     return { success: false, error: "Please fill in all required fields." }
+  }
+
+  // Final check to prevent race conditions/duplicates
+  const check = await checkIfAlreadyMechanic(email)
+  if (check.registered) {
+    return { success: false, error: check.status === 'approved' ? "You're already registered as mechanic" : "Your application is already pending" }
   }
 
   const { error } = await supabase.from("mechanic_requests").insert({
