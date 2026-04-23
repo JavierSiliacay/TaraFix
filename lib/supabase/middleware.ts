@@ -48,7 +48,9 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/forgot-password') ||
     request.nextUrl.pathname.startsWith('/reset-password') ||
     request.nextUrl.pathname.startsWith('/auth') ||
-    request.nextUrl.pathname.startsWith('/api')
+    request.nextUrl.pathname.startsWith('/api') ||
+    request.nextUrl.pathname === '/manifest.json' ||
+    request.nextUrl.pathname === '/sw.js'
 
   if (!user && !isPublicPage) {
     const url = request.nextUrl.clone()
