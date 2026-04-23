@@ -31,6 +31,7 @@ export const viewport: Viewport = {
 
 import { Toaster } from "@/components/ui/sonner"
 import { AvatarSync } from "@/components/avatar-sync"
+import { PWAProvider } from "@/lib/pwa-context"
 import { NotificationProvider } from "@/lib/notification-context"
 
 export default function RootLayout({
@@ -47,10 +48,12 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans antialiased min-h-screen">
-        <NotificationProvider>
-          <AvatarSync />
-          {children}
-        </NotificationProvider>
+        <PWAProvider>
+          <NotificationProvider>
+            <AvatarSync />
+            {children}
+          </NotificationProvider>
+        </PWAProvider>
         <Toaster position="top-center" richColors />
       </body>
     </html>

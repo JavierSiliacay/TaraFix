@@ -32,6 +32,7 @@ const howItWorks = [
 ]
 
 import { PWAInstallButton } from "@/components/pwa-install-button"
+import { WelcomeModal } from "@/components/welcome-modal"
 
 export default function HomePage() {
   const [topMechanics, setTopMechanics] = useState<Mechanic[]>([])
@@ -57,6 +58,7 @@ export default function HomePage() {
   }, [])
   return (
     <div className="min-h-screen pb-32 overflow-x-hidden">
+      <WelcomeModal />
       <AppHeader
         rightAction={
           <div className="flex items-center gap-3">
