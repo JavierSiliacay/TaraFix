@@ -27,7 +27,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     const processedMessageIdsRef = useRef<Set<string>>(new Set());
     const supabase = createClient();
 
-    const VAPID_PUBLIC_KEY = "BO30rV39OUGCdyHYEqkQ7dlD4xvCj8TE8MYCOVyyTEohFCkq2JHlAfKsOn60ZXaA5n6oBTvbCsCtmCpqoNMIuF4";
+    const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || "BEx6mp-8rKcS0L08Ca7epwKz3TTPGFvqbelrnYLdM-HhjoPUM-7Z-0Gi9Pcg8Zig5f_Prj5q3DKGYS4Fnxqfu3g";
 
     // Sum of all unread counts
     const totalUnread = Object.values(unreadCounts).reduce((sum, count) => sum + count, 0);
@@ -202,7 +202,9 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         if (!isPushSupported || !userEmail) return false;
 
         try {
-            const registration = await navigator.serviceWorker.register('/sw.js');
+            // Wait for the PWA service worker to be ready
+            const registration = await navigator.serviceWorker.ready;
+            
             const subscription = await registration.pushManager.subscribe({
                 userVisibleOnly: true,
                 applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
