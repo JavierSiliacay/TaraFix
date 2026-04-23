@@ -31,6 +31,8 @@ const howItWorks = [
   { icon: "verified", title: "Fix It", desc: "Get it serviced on-site" },
 ]
 
+import { PWAInstallButton } from "@/components/pwa-install-button"
+
 export default function HomePage() {
   const [topMechanics, setTopMechanics] = useState<Mechanic[]>([])
   const [loading, setLoading] = useState(true)
@@ -57,11 +59,14 @@ export default function HomePage() {
     <div className="min-h-screen pb-32 overflow-x-hidden">
       <AppHeader
         rightAction={
-          <Link href="/register-mechanic">
-            <span className="text-[10px] font-black uppercase tracking-widest text-turbo-orange border border-turbo-orange/30 px-3 py-1.5 rounded-full hover:bg-turbo-orange hover:text-midnight transition-all cursor-pointer">
-              Register as mechanic
-            </span>
-          </Link>
+          <div className="flex items-center gap-3">
+            <PWAInstallButton />
+            <Link href="/register-mechanic">
+              <span className="text-[10px] font-black uppercase tracking-widest text-turbo-orange border border-turbo-orange/30 px-3 py-1.5 rounded-full hover:bg-turbo-orange hover:text-midnight transition-all cursor-pointer">
+                Register as mechanic
+              </span>
+            </Link>
+          </div>
         }
       />
 

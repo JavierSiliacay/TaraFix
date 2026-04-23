@@ -10,12 +10,23 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 export const metadata: Metadata = {
   title: 'TaraFix - Find Freelance Mechanics in the Philippines',
   description: 'Connect with expert freelance mechanics and technicians for on-demand, on-site auto repairs anywhere in the Philippines.',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'TaraFix',
+  },
+  formatDetection: {
+    telephone: false,
+  },
 }
 
 export const viewport: Viewport = {
-  themeColor: '#0a0f18',
+  themeColor: '#020617',
   width: 'device-width',
   initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 }
 
 import { Toaster } from "@/components/ui/sonner"

@@ -18,6 +18,8 @@ import { ServiceChat } from '@/components/service-chat';
 import { useNotifications } from '@/lib/notification-context';
 import type { Mechanic } from '@/lib/types';
 import { SERVICE_TYPES } from '@/lib/types';
+import { PWAInstallButton } from '@/components/pwa-install-button';
+
 
 export default function ProfilePage() {
     const [user, setUser] = useState<any>(null);
@@ -573,7 +575,11 @@ export default function ProfilePage() {
                     </div>
                 )}
 
-                <div className="flex flex-col gap-10 mt-10">
+
+                <div className="flex flex-col gap-4 mt-10">
+                    <div className="flex justify-center">
+                        <PWAInstallButton />
+                    </div>
                     <button
                         onClick={handleLogout}
                         disabled={isLoggingOut}
